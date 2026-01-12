@@ -47,7 +47,8 @@ async function startServer() {
   const { handleProxyRequest } = await import("./proxy.js");
 
   // Proxy all other requests to the target Manus website
-  app.use("*", handleProxyRequest);
+  // Use a catch-all route that handles all HTTP methods
+  app.all("*", handleProxyRequest);
 
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);
