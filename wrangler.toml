@@ -1,0 +1,4 @@
+name = "gentle-snow-dce9"
+main = "worker.js"
+compatibility_date = "2024-12-30"
+account_id = "cc7007610fdf018534179c7cc92bbe7f"
