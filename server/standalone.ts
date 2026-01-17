@@ -2,6 +2,7 @@ import express from "express";
 import { createServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
+import { existsSync } from "fs";
 import { Resend } from "resend";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -104,17 +105,41 @@ async function startServer() {
     });
   });
 
-  // Serve static files from dist/public in production
-  const staticPath = path.resolve(__dirname, "public");
-  
-  console.log(`[INFO] Static files path: ${staticPath}`);
+  // Find static files - try multiple possible paths
+  const possiblePaths = [
+    path.resolve(__dirname, "public"),
+    path.resolve(__dirname, "..", "public"),
+    path.resolve(__dirname, "..", "dist", "public"),
+    path.resolve(process.cwd(), "dist", "public"),
+    path.resolve(process.cwd(), "public"),
+  ];
 
-  app.use(express.static(staticPath));
+  let staticPath = "";
+  for (const testPath of possiblePaths) {
+    console.log(`[INFO] Checking path: ${testPath}`);
+    if (existsSync(testPath)) {
+      const indexPath = path.join(testPath, "index.html");
+      if (existsSync(indexPath)) {
+        staticPath = testPath;
+        console.log(`[INFO] ✅ Found static files at: ${staticPath}`);
+        break;
+      }
+    }
+  }
 
-  // Handle client-side routing - serve index.html for all routes
-  app.get("*", (_req, res) => {
-    res.sendFile(path.join(staticPath, "index.html"));
-  });
+  if (!staticPath) {
+    console.error("[ERROR] Could not find static files in any expected location!");
+    console.error("[ERROR] Tried paths:", possiblePaths);
+    console.error("[ERROR] Current directory:", process.cwd());
+    console.error("[ERROR] __dirname:", __dirname);
+  } else {
+    app.use(express.static(staticPath));
+
+    // Handle client-side routing - serve index.html for all routes
+    app.get("*", (_req, res) => {
+      res.sendFile(path.join(staticPath, "index.html"));
+    });
+  }
 
   const port = process.env.PORT || 10000;
 
@@ -123,6 +148,7 @@ async function startServer() {
     console.log(`Server running on port ${port}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`RESEND_API_KEY configured: ${!!RESEND_API_KEY}`);
+    console.log(`Static files: ${staticPath || 'NOT FOUND'}`);
     console.log(`========================================`);
   });
 }
