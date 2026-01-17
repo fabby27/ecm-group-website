@@ -22,12 +22,17 @@ export interface BookingEmailData {
 }
 
 export async function sendBookingEmail(data: BookingEmailData): Promise<boolean> {
+  console.log("[Email] sendBookingEmail called with data:", { company: data.company, email: data.email });
+  console.log("[Email] RESEND_API_KEY exists:", !!RESEND_API_KEY);
+  console.log("[Email] Resend client initialized:", !!resend);
+  
   if (!resend) {
     console.error("[Email] Resend not initialized - missing API key");
     return false;
   }
 
   try {
+    console.log("[Email] Attempting to send email to:", RECIPIENT_EMAIL);
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #0ea5e9; border-bottom: 2px solid #0ea5e9; padding-bottom: 10px;">
