@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
@@ -23,32 +22,9 @@ export default function Book() {
     additionalInfo: "",
   });
 
-  const submitBooking = trpc.contact.submitBooking.useMutation({
-    onSuccess: () => {
-      toast.success("Booking request submitted successfully!", {
-        description: "We'll contact you within 2 hours to confirm your appointment.",
-      });
-      // Reset form
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        company: "",
-        serviceType: "",
-        location: "",
-        preferredDate: "",
-        preferredTime: "",
-        additionalInfo: "",
-      });
-    },
-    onError: (error) => {
-      toast.error("Failed to submit booking request", {
-        description: error.message,
-      });
-    },
-  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validation
@@ -58,7 +34,47 @@ export default function Book() {
       return;
     }
 
-    submitBooking.mutate(formData);
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/booking", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success("Booking request submitted successfully!", {
+          description: "We'll contact you within 2 hours to confirm your appointment.",
+        });
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          company: "",
+          serviceType: "",
+          location: "",
+          preferredDate: "",
+          preferredTime: "",
+          additionalInfo: "",
+        });
+      } else {
+        toast.error("Failed to submit booking request", {
+          description: result.error || "Please try again later",
+        });
+      }
+    } catch (error) {
+      toast.error("Failed to submit booking request", {
+        description: "Please try again later",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -252,9 +268,9 @@ export default function Book() {
                     <Button 
                       type="submit" 
                       className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                      disabled={submitBooking.isPending}
+                      disabled={isSubmitting}
                     >
-                      {submitBooking.isPending ? "SUBMITTING..." : "SUBMIT BOOKING REQUEST"}
+                      {isSubmitting ? "SUBMITTING..." : "SUBMIT BOOKING REQUEST"}
                     </Button>
 
                     <p className="text-xs text-center text-muted-foreground">
@@ -270,10 +286,12 @@ export default function Book() {
               <Card className="border-border">
                 <CardHeader>
                   <CardTitle className="text-lg">Fast & Confidential</CardTitle>
-                  <CardDescription>
-                    Our secure booking system ensures your information remains private and protected.
-                  </CardDescription>
                 </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Our secure booking system ensures your information remains private and protected.
+                  </p>
+                </CardContent>
               </Card>
 
               <Card className="border-border">
@@ -282,53 +300,41 @@ export default function Book() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Confirmation call within 2 hours</span>
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-muted-foreground">Confirmation call within 2 hours</p>
                   </div>
                   <div className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Pre-sweep security briefing</span>
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-muted-foreground">Pre-sweep security briefing</p>
                   </div>
                   <div className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Comprehensive on-site sweep</span>
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-muted-foreground">Comprehensive on-site sweep</p>
                   </div>
                   <div className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Detailed findings report</span>
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-muted-foreground">Detailed findings report</p>
                   </div>
                   <div className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">Security recommendations</span>
+                    <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-muted-foreground">Security recommendations</p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="border-border bg-primary/10">
+              <Card className="border-border bg-primary/5">
                 <CardHeader>
                   <CardTitle className="text-lg">Need Immediate Assistance?</CardTitle>
-                  <CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
                     For urgent security threats, email us immediately for priority response.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+                  </p>
                   <Button variant="outline" className="w-full" asChild>
-                    <a href="mailto:elitecountermeasuresgroup@gmail.com">EMAIL NOW</a>
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="border-border">
-                <CardHeader>
-                  <CardTitle className="text-lg">Contact Information</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Mail className="w-4 h-4 text-primary" />
-                    <a href="mailto:elitecountermeasuresgroup@gmail.com" className="hover:text-primary transition-colors">
-                      elitecountermeasuresgroup@gmail.com
+                    <a href="mailto:elitecountermeasuresgroup@gmail.com">
+                      EMAIL NOW
                     </a>
-                  </div>
+                  </Button>
                 </CardContent>
               </Card>
             </div>
@@ -337,35 +343,35 @@ export default function Book() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-border">
+      <footer className="border-t border-border py-12 px-4">
         <div className="container">
           <div className="grid md:grid-cols-3 gap-8">
             <div>
-              <div className="text-lg font-bold text-primary mb-4">ELITE COUNTERMEASURES GROUP</div>
-              <p className="text-sm text-muted-foreground">
-                Advanced Technical Surveillance Countermeasures (TSCM) protecting Fortune 500 companies from corporate espionage.
-              </p>
-            </div>
-            <div>
-              <div className="text-sm font-semibold mb-4">QUICK LINKS</div>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <div><Link href="/"><a className="hover:text-primary transition-colors">Home</a></Link></div>
-                <div><a href="/#services" className="hover:text-primary transition-colors">Services</a></div>
-                <div><a href="/#about" className="hover:text-primary transition-colors">About Us</a></div>
-                <div><Link href="/book"><a className="hover:text-primary transition-colors">Book Sweep</a></Link></div>
-              </div>
-            </div>
-            <div>
-              <div className="text-sm font-semibold mb-4">CONTACT</div>
-              <div className="text-sm text-muted-foreground">
+              <h3 className="font-bold text-lg mb-4">Contact Information</h3>
+              <p className="text-sm text-muted-foreground mb-2">
                 <a href="mailto:elitecountermeasuresgroup@gmail.com" className="hover:text-primary transition-colors">
                   elitecountermeasuresgroup@gmail.com
                 </a>
+              </p>
+            </div>
+            <div>
+              <h3 className="font-bold text-lg mb-4">Quick Links</h3>
+              <div className="space-y-2">
+                <Link href="/"><a className="block text-sm text-muted-foreground hover:text-primary transition-colors">Home</a></Link>
+                <a href="/#services" className="block text-sm text-muted-foreground hover:text-primary transition-colors">Services</a>
+                <a href="/#about" className="block text-sm text-muted-foreground hover:text-primary transition-colors">About Us</a>
+                <Link href="/book"><a className="block text-sm text-muted-foreground hover:text-primary transition-colors">Book Sweep</a></Link>
               </div>
+            </div>
+            <div>
+              <h3 className="font-bold text-lg mb-4">Professional Services</h3>
+              <p className="text-sm text-muted-foreground">
+                Certified TSCM specialists providing comprehensive counter-surveillance solutions for corporate and private clients.
+              </p>
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-            © 2025 Elite Countermeasures Group. All rights reserved.
+            <p>&copy; 2026 Elite Countermeasures Group. All rights reserved.</p>
           </div>
         </div>
       </footer>

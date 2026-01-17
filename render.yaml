@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ecm-group-proxy
+    env: node
+    buildCommand: pnpm install && pnpm run build
+    startCommand: node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: RESEND_API_KEY
+        sync: false
