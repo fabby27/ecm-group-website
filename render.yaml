@@ -3,7 +3,7 @@ services:
     name: ecm-group-proxy
     env: node
     buildCommand: pnpm install && pnpm run build
-    startCommand: node dist/index.js
+    startCommand: node dist/standalone.js
     envVars:
       - key: NODE_ENV
         value: production

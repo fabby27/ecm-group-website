@@ -64,3 +64,13 @@
 - [ ] Test email delivery through published ecm-group.org
 - [ ] Verify user receives email confirmation
 - [ ] Save final checkpoint with permanent fix
+
+## Render Deployment Fix
+- [ ] Remove Manus-specific dependencies (OAuth, tRPC core) from server
+- [ ] Create standalone Express server with only booking API
+- [ ] Fix RESEND_API_KEY environment variable reading
+- [ ] Remove OAUTH_SERVER_URL dependency
+- [ ] Test locally before pushing to GitHub
+- [ ] Push fixed code to GitHub
+- [ ] Redeploy on Render
+- [ ] Verify email functionality works on Render
