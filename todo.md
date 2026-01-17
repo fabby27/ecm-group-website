@@ -42,4 +42,11 @@
 - [x] Configure proxy to forward most routes to starksec website
 - [x] Keep /book route local for working email form
 - [x] Test all routes work correctly
-- [ ] Save checkpoint with hybrid proxy setup
+- [x] Save checkpoint with hybrid proxy setup
+
+## Email Delivery Issue
+- [x] Submit test booking through /book form
+- [x] Monitor server logs for email sending
+- [x] Verify Resend API is being called
+- [x] Check for any errors in email sending
+- [x] Confirm user receives email in Gmail
