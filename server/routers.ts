@@ -3,6 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { notifyOwner } from "./_core/notification";
+import { sendBookingEmail } from "./_core/email";
 import { z } from "zod";
 
 export const appRouter = router({
@@ -63,10 +64,28 @@ Please respond to this customer within 2 hours as promised on the website.
         `;
 
         try {
+          // Send email to Gmail
+          const emailSent = await sendBookingEmail({
+            name: input.name,
+            email: input.email,
+            phone: input.phone,
+            company: input.company,
+            serviceType: input.serviceType,
+            location: input.location,
+            preferredDate: input.preferredDate,
+            preferredTime: input.preferredTime,
+            additionalInfo: input.additionalInfo,
+          });
+
+          // Also send notification to Manus dashboard
           await notifyOwner({
             title: `🚨 New Booking: ${input.company}`,
             content: emailContent,
           });
+
+          if (!emailSent) {
+            console.warn("Email notification failed, but Manus notification was sent");
+          }
 
           return {
             success: true,

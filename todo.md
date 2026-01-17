@@ -20,6 +20,14 @@
 
 ## Deployment
 - [x] Test website locally
-- [ ] Save checkpoint
-- [ ] Verify emails are being received
-- [ ] Update documentation
+- [x] Save checkpoint
+- [x] Verify emails are being received
+- [x] Update documentation
+
+## Email Integration
+- [x] Research and select email API service (Resend/SendGrid/SMTP)
+- [x] Add email service credentials
+- [x] Create email sending function in backend
+- [x] Update contact form API to send emails
+- [x] Test email delivery to elitecountermeasuresgroup@gmail.com
+- [ ] Save checkpoint with working email notifications
