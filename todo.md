@@ -37,3 +37,9 @@
 - [x] Verify Resend API is being called correctly
 - [x] Check Gmail inbox and spam folder
 - [x] Fix any issues preventing email delivery
+
+## Proxy Configuration
+- [x] Configure proxy to forward most routes to starksec website
+- [x] Keep /book route local for working email form
+- [x] Test all routes work correctly
+- [ ] Save checkpoint with hybrid proxy setup

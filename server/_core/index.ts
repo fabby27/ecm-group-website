@@ -46,9 +46,38 @@ async function startServer() {
   // Import proxy handler
   const { handleProxyRequest } = await import("./proxy.js");
 
-  // Proxy all other requests to the target Manus website
-  // Use a catch-all route that handles all HTTP methods
-  app.all("*", handleProxyRequest);
+  // Proxy all requests EXCEPT /book and Vite assets to the target Manus website
+  // This middleware runs BEFORE the frontend server
+  app.use((req, res, next) => {
+    // Allow /book route and Vite dev server assets to pass through
+    if (
+      req.path === "/book" ||
+      req.path.startsWith("/book/") ||
+      req.path.startsWith("/@") || // Vite internal routes
+      req.path.startsWith("/node_modules/") || // Vite dependencies
+      req.path.startsWith("/src/") || // Source files in dev mode
+      req.path.endsWith(".js") ||
+      req.path.endsWith(".ts") ||
+      req.path.endsWith(".tsx") ||
+      req.path.endsWith(".jsx") ||
+      req.path.endsWith(".css") ||
+      req.path.endsWith(".svg") ||
+      req.path.endsWith(".png") ||
+      req.path.endsWith(".jpg") ||
+      req.path.endsWith(".ico")
+    ) {
+      return next();
+    }
+    // Otherwise proxy to starksec website
+    return handleProxyRequest(req, res);
+  });
+
+  // Serve frontend only for /book route
+  if (process.env.NODE_ENV === "production") {
+    serveStatic(app);
+  } else {
+    await setupVite(app, server);
+  }
 
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);

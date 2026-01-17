@@ -4,18 +4,14 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Home from "./pages/Home";
 import Book from "./pages/Book";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
+  // Only handle /book route, everything else will be proxied to starksec website
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
       <Route path={"/book"} component={Book} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
+      {/* No fallback - let unmatched routes pass through to proxy */}
     </Switch>
   );
 }
