@@ -37,6 +37,9 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ input }) => {
+        console.log("[BOOKING] ===== NEW BOOKING REQUEST RECEIVED =====");
+        console.log("[BOOKING] Input data:", JSON.stringify(input, null, 2));
+        
         // Send notification email to owner
         const emailContent = `
 New Booking Request Received!
@@ -64,6 +67,8 @@ Please respond to this customer within 2 hours as promised on the website.
         `;
 
         try {
+          console.log("[BOOKING] Attempting to send email to Gmail...");
+          
           // Send email to Gmail
           const emailSent = await sendBookingEmail({
             name: input.name,
@@ -76,23 +81,36 @@ Please respond to this customer within 2 hours as promised on the website.
             preferredTime: input.preferredTime,
             additionalInfo: input.additionalInfo,
           });
+          
+          console.log("[BOOKING] Email sent result:", emailSent);
 
           // Also send notification to Manus dashboard
+          console.log("[BOOKING] Sending Manus notification...");
           await notifyOwner({
             title: `🚨 New Booking: ${input.company}`,
             content: emailContent,
           });
+          
+          console.log("[BOOKING] Manus notification sent successfully");
 
           if (!emailSent) {
-            console.warn("Email notification failed, but Manus notification was sent");
+            console.warn("[BOOKING] ⚠️ Email notification failed, but Manus notification was sent");
+          } else {
+            console.log("[BOOKING] ✅ All notifications sent successfully!");
           }
+          
+          console.log("[BOOKING] ===== BOOKING PROCESSED SUCCESSFULLY =====");
 
           return {
             success: true,
             message: "Booking request submitted successfully",
           };
         } catch (error) {
-          console.error("Failed to send notification:", error);
+          console.error("[BOOKING] ❌ ERROR processing booking:", error);
+          console.error("[BOOKING] Error details:", {
+            message: error instanceof Error ? error.message : String(error),
+            stack: error instanceof Error ? error.stack : undefined,
+          });
           throw new Error("Failed to submit booking request. Please try again or email us directly.");
         }
       }),

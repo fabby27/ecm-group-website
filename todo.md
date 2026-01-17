@@ -50,3 +50,17 @@
 - [x] Verify Resend API is being called
 - [x] Check for any errors in email sending
 - [x] Confirm user receives email in Gmail
+
+## Proxy Routing Fix for ecm-group.org
+- [ ] Update proxy configuration to handle /book route locally instead of forwarding to starksec
+- [ ] Test booking form submission through ecm-group.org
+- [ ] Verify email is sent when form is submitted via ecm-group.org
+- [ ] Save checkpoint with working proxy routing
+
+## Permanent Email Delivery Fix
+- [ ] Diagnose why published site API calls don't reach email backend
+- [ ] Fix API routing to ensure /api/trpc endpoints work on published site
+- [ ] Add detailed logging to track email sending
+- [ ] Test email delivery through published ecm-group.org
+- [ ] Verify user receives email confirmation
+- [ ] Save final checkpoint with permanent fix
